@@ -6,7 +6,7 @@ app = FastAPI()
 # Database setup
 conn = sqlite3.connect("fibonacci.db", check_same_thread=False)
 cursor = conn.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS fib_cache (n INTEGER PRIMARY KEY, result INTEGER)")
+cursor.execute("CREATE TABLE IF NOT EXISTS fib_cache (n INTEGER PRIMARY KEY, result TEXT)")
 conn.commit()
 
 # Fibonacci function with database caching
@@ -14,7 +14,7 @@ def calculate_fibonacci(n):
     cursor.execute("SELECT result FROM fib_cache WHERE n=?", (n,))
     result = cursor.fetchone()
     if result:
-        return result[0]  # Return cached result
+        return int(result[0])  # Return cached result as int
 
     if n == 0:
         return 0
@@ -29,7 +29,7 @@ def calculate_fibonacci(n):
     result = curr
 
     # Store the result in the database
-    cursor.execute("INSERT INTO fib_cache (n, result) VALUES (?, ?)", (n, result))
+    cursor.execute("INSERT INTO fib_cache (n, result) VALUES (?, ?)", (n, str(result)))
     conn.commit()
     return result
 
